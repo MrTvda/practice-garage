@@ -5,32 +5,39 @@
       <button type="button" class="btn" @click="garageDialog = true">
         Add garage
       </button>
-      <new-garage-dialog
+      <garage-dialog
         v-if="garageDialog"
         @update="updateList"
         @close="garageDialog = false"
       />
     </div>
-    <ul class="list-group">
-      <li v-for="g in garageList" :key="g.id" class="list-group-item">
-        <!-- when a garage item is deleted it will raise change event and return the new list -->
-        <garage-list-item :garage="g" @change="garageList = $event"
-          >hello</garage-list-item
-        >
-      </li>
-    </ul>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Garage</th>
+          <th>Brand</th>
+          <th>Country</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="g in garageList" :key="g.id">
+          <td>
+            <a :href="'/#/garages/' + g.id">{{ g.name }}</a>
+          </td>
+          <td>{{ g.brand }}</td>
+          <td>{{ g.postal_country }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
-import GarageListItem from './garage-list-item';
-import GarageForm from './garage-form';
-import NewGarage from './new-garage';
-import NewGarageDialog from './new-garage-dialog';
+import GarageDialog from './garage-dialog';
 
 export default {
   name: 'garage-list',
-  components: { NewGarage, GarageListItem, GarageForm, NewGarageDialog },
+  components: { GarageDialog },
   data() {
     return {
       garageList: [],
@@ -55,6 +62,10 @@ export default {
     },
     updateList(data) {
       this.garageList.push(data);
+    },
+    remove(id) {
+      console.log(id);
+      this.garageList = this.garageList.filter((val) => val.id !== id);
     },
   },
   created: function() {
@@ -93,5 +104,9 @@ h1 {
 
 button {
   margin-left: auto; /* Push this element to the right */
+}
+
+td {
+  text-align: start;
 }
 </style>
