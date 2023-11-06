@@ -46,26 +46,15 @@ export default {
   },
   methods: {
     load() {
-      $.ajax({
-        type: 'GET',
-        url: `/garages/`,
-        contentType: 'application/json',
-        timeout: 60000,
-      })
+      fetch('/garages/')
+        .then((response) => response.json())
         .then((data) => {
           console.log(data);
           this.garageList = data;
-        })
-        .always(() => {
-          // this.loading = false
         });
     },
     updateList(data) {
       this.garageList.push(data);
-    },
-    remove(id) {
-      console.log(id);
-      this.garageList = this.garageList.filter((val) => val.id !== id);
     },
   },
   created: function() {
