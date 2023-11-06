@@ -30,8 +30,10 @@ def garage_list():
 
 @bp.route('/', methods=["POST"])
 def garage_add():
+    props=request.json
     logging.warning(request.json)
-    garage = Garage.add(props=request.json)
+    garage = Garage.add(props)
+    logging.warning(garage)
     return jsonify({
         'id': garage.id,
         'name': garage.name,
@@ -55,5 +57,6 @@ def garage_update():
 @bp.route('/', methods=["DELETE"])
 def garage_delete():
     garage = Garage.get(key=request.json.pop('garage'))
+    logging.warning(request.json)
     garage.delete()
     return jsonify({'status': 'OK'})

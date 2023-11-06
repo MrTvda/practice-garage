@@ -48,6 +48,7 @@ class BaseModel(ndb.Model, MixinDefaults):
     def get(cls, key, parent=None):
         """
         """
+        logging.warning(key)
         entity = None
         if key is None:
             return None
@@ -57,6 +58,7 @@ class BaseModel(ndb.Model, MixinDefaults):
 
     @classmethod
     def add(cls, props, **kwargs):
+        logging.warning(props)
         entity = cls(**kwargs)
         entity.fill(props=props)
         return entity.save()
@@ -73,7 +75,8 @@ class BaseModel(ndb.Model, MixinDefaults):
         """
         """
         with self.ndb_context():
-            return self.put()
+            self.put()
+            return self
 
     def delete(self):
         with self.ndb_context():
