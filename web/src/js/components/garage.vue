@@ -1,6 +1,12 @@
 <template>
   <div class="grid-container">
     <div class="title">
+      <car-dialog
+        v-if="carDialog"
+        :garage="garage"
+        @update="updateCarsList"
+        @close="carDialog = false"
+      />
       <garage-dialog
         v-if="garageDialog"
         :garage="garage"
@@ -28,14 +34,37 @@
         </div>
       </div>
     </div>
+    <div class="list-group">
+      <div class="title">
+        <div>
+          <h2>Cars</h2>
+        </div>
+        <div>
+          <button
+            type="button"
+            class="btn btn-success"
+            @click="carDialog = true"
+          >
+            Add Car
+          </button>
+        </div>
+      </div>
+      <ul>
+        <li v-for="car in cars" :key="car.id">
+          <car :garage="garage" :car="car"></car>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
 import GarageDialog from './garage-dialog';
+import CarDialog from './car-dialog';
+import Car from './car';
 
 export default {
-  components: { GarageDialog },
+  components: { GarageDialog, CarDialog, Car },
   data() {
     return {
       garage: {
@@ -43,7 +72,15 @@ export default {
         brand: '',
         postal_country: '',
       },
+      cars: [
+        {
+          name: '',
+          brand: '',
+          garage_id: 0,
+        },
+      ],
       garageDialog: false,
+      carDialog: false,
     };
   },
   methods: {
@@ -59,15 +96,20 @@ export default {
           this.garage = data;
         });
     },
-    toggleEdit() {
-      this.editing = !this.editing;
-    },
     deleteGarage() {
-      console.log('deleting..');
+      console.log('deleting garage... ' + this.garage.id);
+
+      const garageJson = { garage: this.garage.id };
+      const garageJsonStr = JSON.stringify(garageJson);
+      const garageJsonParse = JSON.parse(garageJsonStr);
+
+      console.log(garageJsonStr);
+      console.log(garageJsonParse);
+      // console.log(JSON.stringify({ garage: this.garage.id }));
       fetch('/garages/?garage=' + this.garage.id, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ garage: this.garage.id }),
+        body: garageJsonStr,
       })
         .then((response) => response.json())
         .then((data) => {
@@ -75,9 +117,24 @@ export default {
           this.$router.push({ name: 'home' });
         });
     },
+    getCars() {
+      console.log('Getting cars..');
+      const url = '/garages/' + this.$route.params.id + '/cars';
+      console.log(url);
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          this.cars = data;
+        });
+    },
+    updateCarsList(data) {
+      this.cars.push(data);
+    },
   },
   mounted() {
     this.getGarage();
+    this.getCars();
   },
 };
 </script>
@@ -90,7 +147,7 @@ export default {
   grid-gap: 8px;
   grid-template-areas:
     'title'
-    'garage-list';
+    'car-list';
 }
 
 .title {
@@ -102,6 +159,32 @@ export default {
 }
 
 .title .list-group {
-  grid-area: garage-list;
+  grid-area: car-list;
+}
+
+.list-group .title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.list-group .title {
+  display: flex;
+  justify-content: space-between;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul li {
+  background-color: white;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-color: #ccc;
+  border: 1px 1px 1px 1px;
+  border-style: solid;
+  border-radius: 10px;
 }
 </style>

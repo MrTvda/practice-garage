@@ -8,11 +8,14 @@ from flask import Flask, render_template, jsonify, request
 
 from shared.system import datastore
 from shared.model.garage import Garage
+from shared.model.car import Car
 from google.cloud import ndb
 from handlers import garages
+from handlers import cars
 
 app = Flask(__name__)
 app.register_blueprint(garages.bp)
+app.register_blueprint(cars.bp)
 
 
 
@@ -32,12 +35,32 @@ def test_create():
         g.put()
         garages = [g for g in Garage.query()]
         return jsonify([{'name': g.name} for g in garages])
+    
+@app.route('/test-create-car')
+def test_create_car():
+    with datastore.client.context():
+        c = Car(name='Picanto', brand='Kia', garage_id=1)
+        c.put()
+        cars = [c for c in Car.query()]
+        return jsonify([{'name': c.name} for c in cars])
 
 @app.route('/test')
 def test_list():
     with datastore.client.context():
         garages = [g for g in Garage.query()]
         return jsonify([{'name': g.name} for g in garages])
+    
+@app.route('/test-cars')
+def test_all_cars():
+    cars = Car.list()
+    return jsonify([{'id': c.id, 'name': c.name, 'brand': c.brand, 'garage_id': c.garage_id} for c in cars])
+    
+@app.route('/garage/<int:garage_id>/cars-test')
+def test_cars_list(garage_id):
+    # with datastore.client.context():
+        print(garage_id)
+        cars = Car.list(garage_id=garage_id)
+        return jsonify([{'id': c.id, 'name': c.name, 'brand': c.brand, 'garage_id': c.garage_id} for c in cars])
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

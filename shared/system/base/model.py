@@ -48,7 +48,6 @@ class BaseModel(ndb.Model, MixinDefaults):
     def get(cls, key, parent=None):
         """
         """
-        logging.warning(key)
         entity = None
         if key is None:
             return None
